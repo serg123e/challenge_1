@@ -3,8 +3,8 @@ require 'json'
 require 'net/http'
 require 'yaml'
 require 'active_record'
-require './models/pageview'
 require './models/visit'
+require './models/pageview'
 
 class Challenge
   def evid_cleanup(evid)

@@ -88,8 +88,13 @@ RSpec.describe Challenge do
 
     it 'store data to a MySQL database' do
       expect(ActiveRecord::Base).to receive(:establish_connection)
-      expect(Visit).to receive(:create).exactly(2).times # .and_return(true)
-      expect(Pageview).to receive(:create).at_least(15).times # .and_return(true)
+      mock_visit = double()
+      mock_pageview = double()
+      allow(mock_pageview).to receive(:create)
+      allow(mock_visit).to receive(:pageviews).and_return mock_pageview
+
+      expect(Visit).to receive(:create).exactly(2).times.and_return(mock_visit)
+      expect(mock_pageview).to receive(:create).at_least(15).times # .and_return(true)
       @challenge.save_data( @visits )
     end
   end
