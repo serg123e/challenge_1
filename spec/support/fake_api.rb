@@ -10,6 +10,6 @@ class FakeAPI < Sinatra::Base
   def json_response(response_code, file_name)
     content_type :json
     status response_code
-    File.open(File.join( File.dirname(__FILE__), file_name), 'rb').read
+    File.open(File.join(File.dirname(__FILE__), file_name), 'rb').read
   end
 end

@@ -2,12 +2,12 @@
 
 require 'active_record'
 namespace :db do
-  db_config       = YAML::load(File.open('config/database.yml'))
+  db_config = YAML.safe_load(File.open('config/database.yml'))
 
   desc 'Create the database'
   task :create do
     database = db_config.delete('database')
-    ActiveRecord::Base.establish_connection(db_config)    
+    ActiveRecord::Base.establish_connection(db_config)
     ActiveRecord::Base.connection.create_database(database)
     puts 'Database created.'
   end
@@ -25,7 +25,6 @@ namespace :db do
     ActiveRecord::Base.connection.drop_database(db_config['database'])
     puts 'Database deleted.'
   end
-
 end
 
 begin
