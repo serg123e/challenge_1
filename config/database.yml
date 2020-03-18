@@ -1,0 +1,7 @@
+default: &default
+adapter: mysql2
+encoding: utf8
+username: root
+database: shastic
+password: pass
+host: mysql

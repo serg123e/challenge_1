@@ -1,0 +1,16 @@
+Style/HashEachMethods:
+  Enabled: false
+Style/HashTransformKeys:
+  Enabled: false
+Style/HashTransformValues:
+  Enabled: false
+Style/Documentation:
+  Enabled: false
+Style/RedundantReturn:
+  Enabled: false
+Style/FormatString:
+  Enabled: false
+Style/FormatStringToken:
+  Enabled: false
+Style/FrozenStringLiteralComment:
+  Enabled: false
