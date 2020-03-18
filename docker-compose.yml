@@ -6,6 +6,7 @@ services:
       dockerfile: ./docker/app/Dockerfile
     links:
       - mysql
+      - api
     volumes:
       - ./:/app
     stdin_open: true
@@ -20,3 +21,12 @@ services:
       - ./:/app
     environment:
       MYSQL_ROOT_PASSWORD: 'pass'
+   
+  api:
+    build:
+      context: .
+      dockerfile: ./docker/api/Dockerfile
+    volumes:
+      - ./:/app
+    stdin_open: true
+    tty: true

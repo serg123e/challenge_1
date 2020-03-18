@@ -1,6 +1,5 @@
 FROM ruby:2.5.5
-RUN apt-get update && apt-get install -y mariadb-client
-COPY ./docker/app/docker-entrypoint.sh /
+COPY ./docker/api/docker-entrypoint.sh /
 RUN chmod -R 755  /docker-entrypoint.sh
 RUN mkdir /app
 WORKDIR /app
