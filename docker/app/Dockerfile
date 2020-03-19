@@ -1,5 +1,5 @@
-FROM ruby:2.5.5
-RUN apt-get update && apt-get install -y mariadb-client
+FROM lambci/lambda:build-ruby2.5
+RUN yum install -y mysql-client mysql-devel
 COPY ./docker/app/docker-entrypoint.sh /
 RUN chmod -R 755  /docker-entrypoint.sh
 RUN mkdir /app

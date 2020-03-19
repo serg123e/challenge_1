@@ -5,6 +5,8 @@ require 'active_record'
 require './models/visit'
 require './models/pageview'
 
+SAMPLE_RESPONSE_FILE = File.join(File.dirname(__FILE__), 'spec', 'support', 'api_response.json')
+
 class Challenge
   def evid_cleanup(evid)
     return evid.sub(/\Aevid_/, '')
@@ -23,8 +25,11 @@ class Challenge
     if url.eql? ''
       (url = ENV['CHALLENGE_API_URL']) || raise(ArgumentError, 'API URL not defined in CHALLENGE_API_URL variable nor function parameter')
     end
-
-    source = fetch_url(url)
+    if (url.eql?'SAMPLE') 
+      source = File.read(SAMPLE_RESPONSE_FILE) 
+    else
+      source = fetch_url(url)
+    end
     return JSON.parse(source)
   end
 
@@ -79,9 +84,6 @@ class Challenge
   end
 
   def save_data(visits)
-    db_config = YAML.safe_load(File.open('config/database.yml'))
-    ActiveRecord::Base.establish_connection(db_config)
-
     visits.each do |visit|
       pageviews = visit.delete(:pageviews)
       new_visit = Visit.create(visit)
