@@ -12,9 +12,3 @@ RSpec.configure do |config|
     stub_request(:any, /.*/).to_rack(FakeAPI)
   end
 end
-
-module Enumerable
-  def sorted_by?(&block)
-    lazy.map(&block).sorted?
-  end
-end
