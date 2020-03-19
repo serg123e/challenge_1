@@ -43,6 +43,11 @@ describe '#api' do
     ENV['CHALLENGE_API_URL'] = 'http://mock_url'
     @challenge.load_data
   end
+
+  it 'raise an exception if CHALLENGE_API_URL not specified' do
+    ENV.delete('CHALLENGE_API_URL')
+    expect { @challenge.load_data }.to raise_error
+  end
 end
 
 describe '#Data processing' do
