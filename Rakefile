@@ -60,8 +60,11 @@ namespace :aws do
                            payload: ''
                          })
 
-    p resp
-    puts resp.payload.string
+    if (resp.status_code == 200) 
+      puts resp.payload.string
+    else
+      puts resp.inspect
+    end
   end
 end
 
