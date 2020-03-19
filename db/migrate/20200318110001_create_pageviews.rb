@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 # Creating Pageviews table
 class CreatePageviews < ActiveRecord::Migration[5.0]
   def change

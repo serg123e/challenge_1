@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require './challenge.rb'
 
 def load_db_config
@@ -22,25 +20,23 @@ def init
     true
   end
 
-  unless skip_migration
-    ActiveRecord::MigrationContext.new('db/migrate/', ActiveRecord::SchemaMigration).migrate
-  end
+  ActiveRecord::MigrationContext.new('db/migrate/', ActiveRecord::SchemaMigration).migrate unless skip_migration
 end
 
-def db_delete(event:, context:)
+def db_delete(*)
   db_config = load_db_config
   ActiveRecord::Base.establish_connection(db_config)
   ActiveRecord::Base.connection.drop_database(db_config['database'])
   { message: 'Database deleted' }
 end
 
-def db_migrate(event:, context:)
+def db_migrate(*)
   init
   ActiveRecord::MigrationContext.new('db/migrate/', ActiveRecord::SchemaMigration).migrate
   { message: 'Database migrated' }
 end
 
-def db_create(event:, context:)
+def db_create(*)
   db_config = load_db_config
   database = db_config.delete('database')
   ActiveRecord::Base.establish_connection(db_config)
@@ -48,12 +44,7 @@ def db_create(event:, context:)
   { message: 'Database created' }
 end
 
-def handler(event:, context:)
-  init
-  call
-end
-
-def call
+def call(*)
   init
   @challenge = Challenge.new
   data = @challenge.load_data

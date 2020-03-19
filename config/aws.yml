@@ -1,5 +1,5 @@
 region: 'eu-central-1'
 role: 'arn:aws:iam::935901954397:role/LambdaRDS'
 function_name: 'shastic-lambda'
-handler: 'app.handler'
+handler: 'app.call'
 runtime: 'ruby2.5'
