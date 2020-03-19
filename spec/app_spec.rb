@@ -96,3 +96,13 @@ describe '#Data processing' do
     @challenge.save_data(@visits)
   end
 end
+
+describe '#Main call' do
+  it 'do all required steps' do
+    expect(ActiveRecord::Base).to receive(:establish_connection)
+    expect_any_instance_of(Challenge).to receive(:load_data)
+    expect_any_instance_of(Challenge).to receive(:parse_data)
+    expect_any_instance_of(Challenge).to receive(:save_data)
+    Challenge.new.run
+  end
+end

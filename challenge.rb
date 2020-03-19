@@ -5,8 +5,8 @@ require "active_record"
 require "./models/visit"
 require "./models/pageview"
 
-SAMPLE_RESPONSE_FILE = File.join(File.dirname(__FILE__),
-                                 "spec", "support", "api_response.json")
+SAMPLE_RESPONSE_FILE = File.join(File.dirname(__FILE__), "spec", "support", "api_response.json")
+DB_CONFIG_FILE = File.join(File.dirname(__FILE__), "config", "database.yml")
 
 # PORO that loads data from API and saves to MySQL
 class Challenge
@@ -109,5 +109,13 @@ class Challenge
     return { created: { visits: visits.length,
                         pageviews: pageviews_count },
              parsing_errors: @errors }
+  end
+
+  def run
+    db_config = YAML.safe_load(File.open(DB_CONFIG_FILE))
+    ActiveRecord::Base.establish_connection(db_config)
+    data = load_data
+    visits = parse_data(data)
+    return save_data(visits)
   end
 end
