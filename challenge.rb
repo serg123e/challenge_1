@@ -5,7 +5,8 @@ require 'active_record'
 require './models/visit'
 require './models/pageview'
 
-SAMPLE_RESPONSE_FILE = File.join(File.dirname(__FILE__), 'spec', 'support', 'api_response.json')
+SAMPLE_RESPONSE_FILE = File.join(File.dirname(__FILE__),
+                                 'spec', 'support', 'api_response.json')
 
 class Challenge
   def evid_cleanup(evid)
@@ -22,25 +23,30 @@ class Challenge
   end
 
   def load_data(url = '')
+    url ||= ENV['CHALLENGE_API_URL']
     if url.eql? ''
-      (url = ENV['CHALLENGE_API_URL']) || raise(ArgumentError, 'API URL not defined in CHALLENGE_API_URL variable nor function parameter')
+      raise(ArgumentError, 'API URL not defined in CHALLENGE_API_URL')
     end
-    if (url.eql?'SAMPLE') 
-      source = File.read(SAMPLE_RESPONSE_FILE) 
-    else
-      source = fetch_url(url)
-    end
+
+    source = if url.eql? 'SAMPLE'
+               File.read(SAMPLE_RESPONSE_FILE)
+             else
+               fetch_url(url)
+             end
     return JSON.parse(source)
   end
 
   def initialize
     @visit_id = 0
     @seen_page_id = {}
+    @errors = []
+  end
+
+  def add_error(str)
+    @errors.push(str)
   end
 
   def parse_data_row(action_details)
-    # warn(action_details.inspect)
-
     pageviews = []
     @pageview_id = 0
     action_details.each do |detail|
@@ -51,7 +57,7 @@ class Challenge
                    time_spent: detail['timeSpent'],
                    timestamp: detail['timestamp'] }
       if @seen_page_id.key? detail['pageId']
-        warn('page "%s" at position %s is not unique, skipping' % [detail['pageId'], pageview[:position]])
+        add_error('page "%s" at position %s is not unique, skipping' % [detail['pageId'], pageview[:position]])
         next
       end
       @seen_page_id[detail['pageId']] = true
@@ -73,7 +79,7 @@ class Challenge
                 vendor_visitor_id: data_row['visitoriId'] }
 
       unless evid_valid?(visit[:evid])
-        warn('evid %s is not valid, skipping whole visit #%d' % [visit[:evid], @visit_id])
+        add_error('evid %s is not valid, skipping whole visit #%d' % [visit[:evid], @visit_id])
         next
       end
 
@@ -84,13 +90,18 @@ class Challenge
   end
 
   def save_data(visits)
+    visits_count = 0
+    pageviews_count = 0
     visits.each do |visit|
       pageviews = visit.delete(:pageviews)
       new_visit = Visit.create(visit)
-
+      visits_count += 1
       pageviews.each do |pageview|
         new_visit.pageviews.create(pageview)
+        pageviews_count += 1
       end
     end
+    return { created: { visits: visits_count, pageviews: pageviews_count },
+             parsing_errors: @errors }
   end
 end

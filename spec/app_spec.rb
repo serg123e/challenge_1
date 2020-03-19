@@ -1,6 +1,5 @@
 # require 'spec_helper'
 require File.join(File.dirname(__FILE__), '..', 'challenge.rb')
-SAMPLE_RESPONSE_FILE = File.join(File.dirname(__FILE__), 'support', 'api_response.json')
 
 RSpec.describe Challenge do
   describe '#evid' do
@@ -25,6 +24,11 @@ RSpec.describe Challenge do
     it 'can use Fake API server' do
       str = @challenge.fetch_url('http://test')
       expect(str).to include('pageId')
+    end
+
+    it 'can use SAMPLE data instead of remote server' do
+      data = @challenge.load_data('SAMPLE')
+      expect(data.length).to be >= 1
     end
 
     it 'can parse data' do
@@ -79,7 +83,7 @@ RSpec.describe Challenge do
     end
 
     it 'store data to a MySQL database' do
-      expect(ActiveRecord::Base).to receive(:establish_connection)
+#      expect(ActiveRecord::Base).to receive(:establish_connection)
       mock_visit = double
       mock_pageview = double
       allow(mock_pageview).to receive(:create)

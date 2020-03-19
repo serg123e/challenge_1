@@ -1,7 +1,6 @@
-default: &default
 adapter: mysql2
 encoding: utf8
-username: root
-database: shastic
-password: pass
-host: mysql
+username: admin
+database: database-1
+password: pass1234
+host: database-1.corltahxxygv.eu-central-1.rds.amazonaws.com
