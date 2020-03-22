@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'active_record'
 namespace :db do
   db_config = YAML.safe_load(File.open('config/database.yml'))
@@ -34,5 +32,5 @@ begin
 
   task default: :spec
 rescue LoadError
-  # no rspec available
+  puts "no rspec available"
 end

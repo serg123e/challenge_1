@@ -6,9 +6,19 @@ require 'support/fake_api'
 SimpleCov.minimum_coverage 100
 SimpleCov.start
 
-WebMock.disable_net_connect!(allow_localhost: false)
-RSpec.configure do |config|
-  config.before(:each) do
-    stub_request(:any, /.*/).to_rack(FakeAPI)
+$LOAD_PATH << File.join(File.dirname(__FILE__), '..')
+require 'challenge'
+
+SAMPLE_RESPONSE_FILE = File.join(File.dirname(__FILE__), "support", "api_response.json")
+DB_CONFIG_FILE = File.join(File.dirname(__FILE__), "..", "config", "database_test.yml")
+
+class Array
+  def sorted_by?(key)
+    reduce do |l, r|
+      return false if l[key] > r[key]
+
+      l
+    end
+    return true
   end
 end
