@@ -1,0 +1,4 @@
+adapter: INVALID
+encoding: utf8
+database: spec/tmp/shastic_test.sqlite
+
