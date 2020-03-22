@@ -18,47 +18,47 @@ describe '#evid' do
   end
 end
 
-describe '#api' do
-  before(:each) do
-    @challenge = Challenge.new
-  end
+describe '#FetchStrategyURL' do
   it 'can use Fake API server' do
-    str = @challenge.fetch_url('http://test')
+    strategy = FetchStrategyURL.new
+    str = strategy.fetch_data('http://test')
     expect(str).to include('pageId')
   end
+end
 
+describe '#FetchStrategyInline' do
   it 'can use SAMPLE data instead of remote server' do
-    data = @challenge.load_data('SAMPLE')
+    strategy = FetchStrategyInline.new
+    data = strategy.fetch_data('SAMPLE')
     expect(data.length).to be >= 1
   end
+end
 
-  it 'can parse data' do
-    data = @challenge.load_data('http://url')
-    expect(data).to be_instance_of Array
-    expect(data.length).to eq 4
-  end
-
+describe 'ENV parsing' do
   it 'tries to load data from extenal url in ENV' do
-    expect(@challenge).to receive(:fetch_url).with('http://mock_url').and_return(File.read(SAMPLE_RESPONSE_FILE))
+    expect_any_instance_of(FetchStrategyURL).to receive(:fetch_data).with('http://mock_url').and_return('{}')
     ENV['CHALLENGE_API_URL'] = 'http://mock_url'
-    @challenge.load_data
+    Challenge.new.run
   end
 
   it 'raise an exception if CHALLENGE_API_URL not specified' do
     ENV.delete('CHALLENGE_API_URL')
-    expect { @challenge.load_data }.to raise_error
+    expect { Challenge.new.run }.to raise_error NotImplementedError
   end
 end
 
 describe '#Data processing' do
   before(:all) do
-    @challenge = Challenge.new
+    @challenge = Challenge.new()
     @data = JSON.parse(File.read(SAMPLE_RESPONSE_FILE))
     @visits = @challenge.parse_data(@data)
   end
 
   it 'loads sample data' do
-    expect(@data.length).to be 4
+    challenge = Challenge.new('SAMPLE')
+    data = challenge.load_data()
+    expect(data).to be_instance_of Array
+    expect(data.length).to be 4
   end
 
   it 'mapping fields well' do
@@ -108,6 +108,6 @@ describe '#Main call' do
     expect_any_instance_of(Challenge).to receive(:load_data)
     expect_any_instance_of(Challenge).to receive(:parse_data)
     expect_any_instance_of(Challenge).to receive(:save_data)
-    Challenge.new.run
+    Challenge.new().run
   end
 end

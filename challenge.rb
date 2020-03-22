@@ -8,8 +8,43 @@ require "./models/pageview"
 SAMPLE_RESPONSE_FILE = File.join(File.dirname(__FILE__), "spec", "support", "api_response.json")
 DB_CONFIG_FILE = File.join(File.dirname(__FILE__), "config", "database.yml")
 
+class FetchStrategy
+  def fetch_data(params)
+    raise NotImplementedError, "#{self.class} has not implemented method '#{__method__}'"
+  end
+end
+
+class FetchStrategyInline < FetchStrategy
+  def fetch_data(*)
+     File.read(SAMPLE_RESPONSE_FILE)
+  end
+end
+
+class FetchStrategyURL < FetchStrategy
+  def fetch_data(url)
+    uri = URI(url)
+    return Net::HTTP.get(uri)
+  end
+end
+
 # PORO that loads data from API and saves to MySQL
 class Challenge
+  attr_writer :fetch_strategy
+
+  def initialize(source=nil)
+    @visit_id = 0
+    @seen_page_id = {}
+    @errors = []
+    @data_source = source || ENV['CHALLENGE_API_URL']
+    if @data_source.eql? "SAMPLE"
+      @fetch_strategy = FetchStrategyInline
+    elsif (@data_source =~ /^https?:/i)
+      @fetch_strategy = FetchStrategyURL
+    else
+      @fetch_strategy = FetchStrategy
+    end
+  end
+
   def evid_cleanup(evid)
     return evid.sub(/\Aevid_/, "")
   end
@@ -18,27 +53,9 @@ class Challenge
     return evid =~ /\A(?:evid_)?[A-z0-9]{8}-[A-z0-9]{4}-[A-z0-9]{4}-[A-z0-9]{4}-[A-z0-9]{12}\z/ ? true : false
   end
 
-  def fetch_url(url)
-    uri = URI(url)
-    return Net::HTTP.get(uri)
-  end
-
-  def load_data(url = nil)
-    url ||= ENV["CHALLENGE_API_URL"]
-    raise(ArgumentError, "API URL not defined in CHALLENGE_API_URL") if url.eql? ""
-
-    source = if url.eql? "SAMPLE"
-               File.read(SAMPLE_RESPONSE_FILE)
-             else
-               fetch_url(url)
-             end
+  def load_data()
+    source = @fetch_strategy.new.fetch_data(@data_source)
     return JSON.parse(source)
-  end
-
-  def initialize
-    @visit_id = 0
-    @seen_page_id = {}
-    @errors = []
   end
 
   def add_error(str)
